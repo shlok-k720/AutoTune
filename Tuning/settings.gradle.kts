@@ -1,4 +1,4 @@
-rootProject.name = "tuning"
+rootProject.name = "Tuning"
 
 pluginManagement {
     repositories {
