@@ -7,7 +7,7 @@ import dev.frozenmilk.sinister.sdk.apphooks.OnDestroy;
 import java.io.IOException;
 
 @SuppressWarnings("unused")
-class Hooks {
+public class Hooks {
 
     private static final Object serverLock = new Object();
 
@@ -52,7 +52,7 @@ class Hooks {
         }
     }
 
-    static OpModeManagerImpl getOpModeManager() {
+    public static OpModeManagerImpl getOpModeManager() {
         return opModeManager;
     }
 }
