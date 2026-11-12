@@ -32,6 +32,10 @@ brief (what is being built, the repo map, and the hard constraints) and
 - **JitPack publishing** — `maven-publish` with group
   `com.github.shlok-k720.AutoTune`, artifact `tuning`, version 1.0.7;
   `jitpack.yml` pins JDK 17 and builds inside `Tuning/` (the Gradle
-  project lives there, not at the repo root). Coordinate:
-  `com.github.shlok-k720.AutoTune:tuning:1.0.7` (no JitPack build yet —
-  see AGENT_CONTEXT.md §10).
+  project lives there, not at the repo root). **Published on JitPack
+  as v1.0.7** — use this dependency (with the JitPack repository):
+  `com.github.shlok-k720:AutoTune:v1.0.7`. Note the coordinates: the
+  artifact is named `AutoTune` and the version keeps the tag's `v`,
+  because the tag is `v1.0.7` while Gradle's version is `1.0.7` — the
+  `com.github.shlok-k720.AutoTune:tuning:1.0.7` coordinate does NOT
+  resolve on JitPack. See AGENT_CONTEXT.md §10.

@@ -16,7 +16,9 @@ Java/Kotlin JVM-target mismatch; the `kotlinOptions` pin turned out
 to be an error in Kotlin 2.3, so the target is now set via the
 `compilerOptions` DSL; the 1.0.6 build then failed because the real
 SDK 12.0.0 `Telemetry.Line` has no `isRetained()` (fixed by dropping
-all tracked lines on clear), and the version is now 1.0.7
+all tracked lines on clear), and the version is now 1.0.7 — whose
+JitPack build SUCCEEDED (exit 0, 2m). The working consumer
+coordinate is `com.github.shlok-k720:AutoTune:v1.0.7` (see §6/§10).
 (see "Status" §6).
 
 ## Status — applied to main (2026-11-11)
@@ -159,11 +161,26 @@ notes) and the Mac Gradle build is still the real check.
    the public API, so a line can never be retained and `clear()`
    drops every tracked line (`lines.clear()` in
    `dropNonRetained()`). Version bumped to **1.0.7**
-   (`VERSION_NAME=1.0.7`, coordinate
-   `com.github.shlok-k720.AutoTune:tuning:1.0.7`) since 1.0.6's
-   failed build is cached. **Still unverified:** no Gradle build on
-   this VM; the 1.0.7 JitPack build is the real check, and the user
-   must run `./gradlew publishToMavenLocal` on his Mac first.
+   (`VERSION_NAME=1.0.7`) since 1.0.6's failed build is cached.
+   **The 1.0.7 JitPack build SUCCEEDED** (exit 0, BUILD SUCCESSFUL
+   in 2m, 78 tasks; `:compileDebugJavaWithJavac` passed). **Consumer
+   coordinate — read this carefully:** the working dependency is the
+   JitPack aggregate `com.github.shlok-k720:AutoTune:v1.0.7` (aar +
+   pom + sources jar at
+   `jitpack.io/com/github/shlok-k720/AutoTune/v1.0.7/`; the aggregate
+   pom was read and carries the right deps: kotlin-stdlib 2.3.21,
+   revhub 3.0.2, Sloth 0.3.2, jnanoid 2.0.0,
+   nanohttpd-websocket 2.3.1). The module coordinate
+   `com.github.shlok-k720.AutoTune:tuning:1.0.7` does NOT resolve on
+   JitPack: the tag is `v1.0.7` while Gradle's version is `1.0.7`,
+   so the published file is `tuning-1.0.7.*` but JitPack looks for
+   it under the tag version — filename mismatch. (The build log
+   still says "Found artifact:
+   `com.github.shlok-k720.AutoTune:tuning:1.0.7`" — found in the
+   local Maven repo, not servable under either URL form.) **Still
+   unverified:** no Gradle build on this VM; the user should run
+   `./gradlew publishToMavenLocal` on his Mac and try consuming
+   `com.github.shlok-k720:AutoTune:v1.0.7` from a robot project.
 7. **README — DONE.** Top of `README.md` now states this is a fork of
    Pedro-Pathing/AutoTune and lists the added features in short.
 
@@ -797,10 +814,14 @@ Out of scope for this brief. Do not design or build anything for it.
   because the real SDK 12.0.0 `Telemetry.Line` has no `isRetained()`
   (the hand-written stubs had assumed it did); lines have no
   retention state in the public API, so `clear()` now drops every
-  tracked line, and the version was bumped to **1.0.7**. Still
-  unverified: no Gradle build on this VM; run
-  `./gradlew publishToMavenLocal` on a Mac first, then the 1.0.7
-  JitPack build is the real check.
+  tracked line, and the version was bumped to **1.0.7** — whose
+  JitPack build SUCCEEDED (exit 0, 2m, 78 tasks). Consumer
+  coordinate: `com.github.shlok-k720:AutoTune:v1.0.7` (the JitPack
+  aggregate; the `...AutoTune:tuning:1.0.7` module coordinate does
+  NOT resolve — tag `v1.0.7` vs Gradle version `1.0.7` filename
+  mismatch). Still unverified: no Gradle build on this VM; run
+  `./gradlew publishToMavenLocal` on a Mac first, and try consuming
+  `com.github.shlok-k720:AutoTune:v1.0.7` from a robot project.
 
 ## 11. Open questions the agent must resolve before designing (do not guess)
 
