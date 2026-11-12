@@ -12,8 +12,9 @@ but the first JitPack build FAILED ("No build file found" — JitPack did
 not find `build.gradle.kts` in `Tuning/`), so `jitpack.yml` now carries
 an `install` override starting with `chmod +x Tuning/gradlew`
 (`gradlew` is mode 100644 in git); the 1.0.4 build then failed on a
-Java/Kotlin JVM-target mismatch, fixed by pinning
-`kotlinOptions.jvmTarget = "1.8"`, and the version is now 1.0.5
+Java/Kotlin JVM-target mismatch; the `kotlinOptions` pin turned out
+to be an error in Kotlin 2.3, so the target is now set via the
+`compilerOptions` DSL, and the version is now 1.0.6
 (see "Status" §6).
 
 ## Status — applied to main (2026-11-11)
@@ -135,10 +136,18 @@ notes) and the Mac Gradle build is still the real check.
    same latent mismatch; how their Maven Central build avoids it is
    unknown.) Version bumped to **1.0.5** (`VERSION_NAME=1.0.5`,
    coordinate `com.github.shlok-k720.AutoTune:tuning:1.0.5`) since
-   1.0.4's failed build is cached on JitPack. **Still unverified:**
-   no Gradle build on this VM; the 1.0.5 JitPack build is the real
-   check, and the user must run `./gradlew publishToMavenLocal` on his
-   Mac first.
+   1.0.4's failed build is cached on JitPack. **The 1.0.5 JitPack
+   build FAILED too** (exit 1, 26 s, at project configuration): the
+   `kotlinOptions { jvmTarget = "1.8" }` form is an ERROR in Kotlin
+   2.3 — "Using 'jvmTarget: String' is an error. Please migrate to
+   the compilerOptions DSL." Fix: a top-level `kotlin {
+   compilerOptions { jvmTarget.set(JvmTarget.JVM_1_8) } }` block
+   (fully-qualified enum, no import). Version bumped to **1.0.6**
+   (`VERSION_NAME=1.0.6`, coordinate
+   `com.github.shlok-k720.AutoTune:tuning:1.0.6`) since 1.0.5's
+   failed build is cached. **Still unverified:** no Gradle build on
+   this VM; the 1.0.6 JitPack build is the real check, and the user
+   must run `./gradlew publishToMavenLocal` on his Mac first.
 7. **README — DONE.** Top of `README.md` now states this is a fork of
    Pedro-Pathing/AutoTune and lists the added features in short.
 
@@ -763,9 +772,13 @@ Out of scope for this brief. Do not design or build anything for it.
   build — which FAILED at `:compileDebugKotlin` with "Inconsistent JVM
   Target Compatibility" (Java 1.8 vs Kotlin 17): fixed by adding
   `kotlinOptions { jvmTarget = "1.8" }` to the `android` block, and
-  the version was bumped to **1.0.5**. Still unverified: no Gradle
-  build on this VM; run `./gradlew publishToMavenLocal` on a Mac
-  first, then the 1.0.5 JitPack build is the real check.
+  the version was bumped to **1.0.5** — which FAILED at configuration
+  because `kotlinOptions { jvmTarget = "1.8" }` is an error in Kotlin
+  2.3; the target must be set via `kotlin { compilerOptions {
+  jvmTarget.set(JvmTarget.JVM_1_8) } }`, and the version was bumped
+  to **1.0.6**. Still unverified: no Gradle build on this VM; run
+  `./gradlew publishToMavenLocal` on a Mac first, then the 1.0.6
+  JitPack build is the real check.
 
 ## 11. Open questions the agent must resolve before designing (do not guess)
 
