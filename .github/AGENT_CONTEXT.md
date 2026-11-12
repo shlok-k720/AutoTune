@@ -7,8 +7,11 @@ Where the task description is wrong, this file says so — follow this file.
 **Version 3 — regenerated 2026-11-11, applied to fork main.** Version 2 was
 the survey-only brief. This version records what was actually built on
 `main` (see "Status — applied to main" below). The JitPack conversion
-(item 6) was finished in files later the same day (see "Status" §6) but
-is not yet pushed and has no JitPack build behind it.
+(item 6) was pushed to main as `10c10a6` and tagged `v1.0.3` the same day,
+but the first JitPack build FAILED ("No build file found" — JitPack did
+not find `build.gradle.kts` in `Tuning/`), so `jitpack.yml` now carries
+an `install` override (`cd Tuning && ./gradlew build publishToMavenLocal`)
+and `v1.0.3` is being re-tagged at the fixed commit (see "Status" §6).
 
 ## Status — applied to main (2026-11-11)
 
@@ -82,7 +85,7 @@ notes) and the Mac Gradle build is still the real check.
    internal-`TelemetryImpl` dependency at runtime against SDK 12.0.0
    (subclassing an internal class; fallback is a plain `Telemetry`
    interface wrapper) and the `update()` auto-clear assumption.
-6. **JitPack publishing — DONE in files (not yet pushed, not yet built).**
+6. **JitPack publishing — PUSHED as `10c10a6`, tag `v1.0.3`; first build FAILED.**
    The conversion was done on 2026-11-11 after a first attempt was
    refused by a safety policy (retried on the user's ask, this time by
    editing the files directly). `Tuning/build.gradle.kts`: Dokka plugin
@@ -99,14 +102,20 @@ notes) and the Mac Gradle build is still the real check.
    downgraded 9.3.0 → 8.13** (see §10 for why — AGP 8.7.3 cannot run
    Gradle 9). Coordinate: `com.github.shlok-k720.AutoTune:tuning:1.0.3`.
    Java package / Android namespace (`com.pedropathing.tuning`)
-   unchanged. **Still unverified:** no Gradle build on this VM; the
-   first JitPack tag build is the real check, and the user must run
-   `./gradlew publishToMavenLocal` on his Mac first. If JitPack cannot
-   find the build (the Gradle project lives in `Tuning/`, one level
-   down), the fallback is a `jitpack.yml` install override
-   (`cd Tuning && ./gradlew build publishToMavenLocal`) — JitPack docs
-   say a build file "can also be located in a subfolder", so the
-   minimal file was tried first.
+   unchanged. Pushed to fork main as `10c10a6` and tagged `v1.0.3`
+   (published GitHub release, Latest). **The first JitPack build for
+   1.0.3 FAILED** with "No build file found" — JitPack did not find
+   `build.gradle.kts` in `Tuning/` despite its docs saying a build file
+   "can also be located in a subfolder" (likely a `.kts`-only detection
+   gap). Fix applied: `jitpack.yml` now has an `install` override
+   (`cd Tuning && ./gradlew build publishToMavenLocal`), and `v1.0.3`
+   is being re-tagged at the fixed commit (the old release + tag are
+   deleted first, since a tag is frozen at its commit). **Still
+   unverified:** no Gradle build on this VM; the re-tagged 1.0.3
+   JitPack build is the real check, and the user must run
+   `./gradlew publishToMavenLocal` on his Mac first. If the re-tagged
+   build still shows the old failure, delete the failed build on
+   jitpack.io (sign in, look up the repo) and request it again.
 7. **README — DONE.** Top of `README.md` now states this is a fork of
    Pedro-Pathing/AutoTune and lists the added features in short.
 
@@ -703,8 +712,8 @@ Out of scope for this brief. Do not design or build anything for it.
   Before building on `TelemetryFinder`, verify it compiles and runs
   against SDK 12.0.0; the internal-`TelemetryImpl` dependency is the
   known risk (§5). `OpModeProcedure` is deleted (see "Status").
-- **JitPack conversion is DONE in files (not yet pushed or built).**
-  `Tuning/build.gradle.kts` now uses `maven-publish` with the guide's
+- **JitPack conversion is PUSHED as `10c10a6` and tagged `v1.0.3`; first
+  build FAILED.** `Tuning/build.gradle.kts` now uses `maven-publish` with the guide's
   Android-library publication block (group
   `com.github.shlok-k720.AutoTune`, version 1.0.3, artifact `tuning`);
   no `publishing.repositories` block; `jitpack.yml` pins `openjdk17` at
@@ -716,13 +725,16 @@ Out of scope for this brief. Do not design or build anything for it.
   supported range (Gradle 7.6.3–9.3.0, AGP 8.2.2–9.0.0). The guide's
   8.9 pin is the AGP 8.7 minimum; 8.13 was chosen over it as the top of
   the AGP 8.7 line. The Java package / Android namespace
-  (`com.pedropathing.tuning`) did NOT change. Still unverified: no
-  Gradle build on this VM; run `./gradlew publishToMavenLocal` on a Mac
-  first, then the first JitPack tag build is the real check. If JitPack
-  cannot find the build (the Gradle project lives in `Tuning/`, one
-  level down — JitPack docs say a build file "can also be located in a
-  subfolder"), the fallback is a `jitpack.yml` install override
-  (`cd Tuning && ./gradlew build publishToMavenLocal`).
+  (`com.pedropathing.tuning`) did NOT change. The first JitPack build
+  for 1.0.3 FAILED with "No build file found" — JitPack did not find
+  `build.gradle.kts` in `Tuning/` (one level down; its docs claim a
+  build file "can also be located in a subfolder", which did not hold
+  here, likely a `.kts` detection gap). The fix, now in `jitpack.yml`,
+  is an `install` override (`cd Tuning && ./gradlew
+  build publishToMavenLocal`), with `v1.0.3` re-tagged at the fixed
+  commit. Still unverified: no Gradle build on this VM; run
+  `./gradlew publishToMavenLocal` on a Mac first, then the re-tagged
+  1.0.3 JitPack build is the real check.
 
 ## 11. Open questions the agent must resolve before designing (do not guess)
 
