@@ -14,7 +14,9 @@ an `install` override starting with `chmod +x Tuning/gradlew`
 (`gradlew` is mode 100644 in git); the 1.0.4 build then failed on a
 Java/Kotlin JVM-target mismatch; the `kotlinOptions` pin turned out
 to be an error in Kotlin 2.3, so the target is now set via the
-`compilerOptions` DSL, and the version is now 1.0.6
+`compilerOptions` DSL; the 1.0.6 build then failed because the real
+SDK 12.0.0 `Telemetry.Line` has no `isRetained()` (fixed by dropping
+all tracked lines on clear), and the version is now 1.0.7
 (see "Status" §6).
 
 ## Status — applied to main (2026-11-11)
@@ -145,8 +147,22 @@ notes) and the Mac Gradle build is still the real check.
    (fully-qualified enum, no import). Version bumped to **1.0.6**
    (`VERSION_NAME=1.0.6`, coordinate
    `com.github.shlok-k720.AutoTune:tuning:1.0.6`) since 1.0.5's
+   failed build is cached. **The 1.0.6 JitPack build FAILED too**
+   (exit 1, 1m 50s) — but much later: Kotlin compiled (debug +
+   release), the frontend built, and only `:compileDebugJavaWithJavac`
+   failed, on `TelemetryFinder.java:228`:
+   `lines.removeIf(line -> !line.isRetained())` — the real FTC SDK
+   12.0.0 `Telemetry.Line` has NO `isRetained()` method (the
+   hand-written stubs used for the earlier compile check assumed it
+   did; `Telemetry.Item.isRetained()` does exist — the build's single
+   error was the Line call). Fix: lines have no retention state in
+   the public API, so a line can never be retained and `clear()`
+   drops every tracked line (`lines.clear()` in
+   `dropNonRetained()`). Version bumped to **1.0.7**
+   (`VERSION_NAME=1.0.7`, coordinate
+   `com.github.shlok-k720.AutoTune:tuning:1.0.7`) since 1.0.6's
    failed build is cached. **Still unverified:** no Gradle build on
-   this VM; the 1.0.6 JitPack build is the real check, and the user
+   this VM; the 1.0.7 JitPack build is the real check, and the user
    must run `./gradlew publishToMavenLocal` on his Mac first.
 7. **README — DONE.** Top of `README.md` now states this is a fork of
    Pedro-Pathing/AutoTune and lists the added features in short.
@@ -478,7 +494,8 @@ delegate to `source.addData(...)` and record the returned `Item` in a
 record the `Line` in a `lines` list; `removeItem` / `removeLine` remove
 from the tracked lists as well as delegating; `clear()` drops only
 non-retained entries (mirroring `TelemetryImpl.clear()` — retained items
-survive), `clearAll()` drops everything, `update()` mirrors auto-clear
+survive; lines have no retention state in the public API, so `clear()`
+drops every tracked line), `clearAll()` drops everything, `update()` mirrors auto-clear
 after transmit when `isAutoClear()` is on. Everything else is a pure
 delegate to `source` (`addAction`, `removeAction`, `speak` (×2),
 `isAutoClear`/`setAutoClear`, transmission-interval / separator getters
@@ -776,8 +793,13 @@ Out of scope for this brief. Do not design or build anything for it.
   because `kotlinOptions { jvmTarget = "1.8" }` is an error in Kotlin
   2.3; the target must be set via `kotlin { compilerOptions {
   jvmTarget.set(JvmTarget.JVM_1_8) } }`, and the version was bumped
-  to **1.0.6**. Still unverified: no Gradle build on this VM; run
-  `./gradlew publishToMavenLocal` on a Mac first, then the 1.0.6
+  to **1.0.6** — which FAILED at `:compileDebugJavaWithJavac`
+  because the real SDK 12.0.0 `Telemetry.Line` has no `isRetained()`
+  (the hand-written stubs had assumed it did); lines have no
+  retention state in the public API, so `clear()` now drops every
+  tracked line, and the version was bumped to **1.0.7**. Still
+  unverified: no Gradle build on this VM; run
+  `./gradlew publishToMavenLocal` on a Mac first, then the 1.0.7
   JitPack build is the real check.
 
 ## 11. Open questions the agent must resolve before designing (do not guess)

@@ -220,12 +220,15 @@ class LogTelemetry extends TelemetryImpl {
     /**
      * Drops non-retained entries from the tracked lists. This mirrors what
      * the wrapped telemetry does on {@code clear()} and on auto-clear after
-     * {@code update()}: retained entries survive a clear, which is the
-     * whole point of {@code setRetained(true)}.
+     * {@code update()}: retained items survive a clear, which is the
+     * whole point of {@code setRetained(true)}. Lines have no retention
+     * state in the public {@code Telemetry.Line} API (no
+     * {@code isRetained()} / {@code setRetained()}), so a line can never
+     * be retained and {@code clear()} drops every tracked line.
      */
     private void dropNonRetained() {
         items.removeIf(item -> !item.isRetained());
-        lines.removeIf(line -> !line.isRetained());
+        lines.clear();
     }
 
     @Override
