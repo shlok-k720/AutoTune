@@ -30,7 +30,8 @@ brief (what is being built, the repo map, and the hard constraints) and
   standard webcam alongside `Display.image` and `fourWheelBot` (see
   AGENT_CONTEXT.md §6).
 - **JitPack publishing** — `maven-publish` with group
-  `com.github.shlok-k720.AutoTune`, artifact `tuning`, version 1.0.3;
-  `jitpack.yml` pins JDK 17. Coordinate:
-  `com.github.shlok-k720.AutoTune:tuning:1.0.3` (no JitPack build yet —
+  `com.github.shlok-k720.AutoTune`, artifact `tuning`, version 1.0.4;
+  `jitpack.yml` pins JDK 17 and builds inside `Tuning/` (the Gradle
+  project lives there, not at the repo root). Coordinate:
+  `com.github.shlok-k720.AutoTune:tuning:1.0.4` (no JitPack build yet —
   see AGENT_CONTEXT.md §10).

@@ -1,4 +1,5 @@
 jdk:
   - openjdk17
 install:
+  - chmod +x Tuning/gradlew
   - cd Tuning && ./gradlew build publishToMavenLocal

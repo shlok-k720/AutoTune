@@ -10,8 +10,9 @@ the survey-only brief. This version records what was actually built on
 (item 6) was pushed to main as `10c10a6` and tagged `v1.0.3` the same day,
 but the first JitPack build FAILED ("No build file found" — JitPack did
 not find `build.gradle.kts` in `Tuning/`), so `jitpack.yml` now carries
-an `install` override (`cd Tuning && ./gradlew build publishToMavenLocal`)
-and `v1.0.3` is being re-tagged at the fixed commit (see "Status" §6).
+an `install` override starting with `chmod +x Tuning/gradlew`
+(`gradlew` is mode 100644 in git) and the version was bumped to 1.0.4
+for a fresh JitPack build with no cached failure (see "Status" §6).
 
 ## Status — applied to main (2026-11-11)
 
@@ -108,14 +109,21 @@ notes) and the Mac Gradle build is still the real check.
    `build.gradle.kts` in `Tuning/` despite its docs saying a build file
    "can also be located in a subfolder" (likely a `.kts`-only detection
    gap). Fix applied: `jitpack.yml` now has an `install` override
-   (`cd Tuning && ./gradlew build publishToMavenLocal`), and `v1.0.3`
-   is being re-tagged at the fixed commit (the old release + tag are
-   deleted first, since a tag is frozen at its commit). **Still
-   unverified:** no Gradle build on this VM; the re-tagged 1.0.3
-   JitPack build is the real check, and the user must run
-   `./gradlew publishToMavenLocal` on his Mac first. If the re-tagged
-   build still shows the old failure, delete the failed build on
-   jitpack.io (sign in, look up the repo) and request it again.
+   (`cd Tuning && ./gradlew build publishToMavenLocal`), pushed as
+   `4d4237c`, and `v1.0.3` was re-tagged at that commit. **But JitPack
+   never rebuilt 1.0.3** — it kept serving the cached failed build and
+   never picked up the moved tag. A diagnostic build of commit
+   `4d4237c` itself DID run the install override and failed only on
+   `./gradlew: Permission denied` (exit 126): `Tuning/gradlew` is mode
+   100644 in git, not executable. Fix applied: `jitpack.yml` now starts
+   the install with `chmod +x Tuning/gradlew`, and the version was
+   bumped to **1.0.4** (`VERSION_NAME=1.0.4`, coordinate
+   `com.github.shlok-k720.AutoTune:tuning:1.0.4`) so JitPack builds a
+   fresh version with no cached failure — the `v1.0.3` GitHub release
+   stays, it just never got a JitPack artifact. **Still
+   unverified:** no Gradle build on this VM; the 1.0.4 JitPack build is
+   the real check, and the user must run `./gradlew publishToMavenLocal`
+   on his Mac first.
 7. **README — DONE.** Top of `README.md` now states this is a fork of
    Pedro-Pathing/AutoTune and lists the added features in short.
 
@@ -730,11 +738,16 @@ Out of scope for this brief. Do not design or build anything for it.
   `build.gradle.kts` in `Tuning/` (one level down; its docs claim a
   build file "can also be located in a subfolder", which did not hold
   here, likely a `.kts` detection gap). The fix, now in `jitpack.yml`,
-  is an `install` override (`cd Tuning && ./gradlew
-  build publishToMavenLocal`), with `v1.0.3` re-tagged at the fixed
-  commit. Still unverified: no Gradle build on this VM; run
-  `./gradlew publishToMavenLocal` on a Mac first, then the re-tagged
-  1.0.3 JitPack build is the real check.
+  is an `install` override starting with `chmod +x Tuning/gradlew`
+  (`gradlew` is mode 100644 in git — a build of the fixed commit
+  failed with `./gradlew: Permission denied`, exit 126, before this
+  line was added), then `cd Tuning && ./gradlew
+  build publishToMavenLocal`. `v1.0.3` was re-tagged at the fixed
+  commit but JitPack never rebuilt it (cached failed build, moved tag
+  not picked up), so the version was bumped to **1.0.4** for a fresh
+  build. Still unverified: no Gradle build on this VM; run
+  `./gradlew publishToMavenLocal` on a Mac first, then the 1.0.4
+  JitPack build is the real check.
 
 ## 11. Open questions the agent must resolve before designing (do not guess)
 
