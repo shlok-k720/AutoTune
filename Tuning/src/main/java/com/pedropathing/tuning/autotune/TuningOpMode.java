@@ -20,13 +20,32 @@ public abstract class TuningOpMode<Result> extends LinearOpMode {
 
     @Override
     public final void runOpMode() throws InterruptedException {
+        TelemetryFinder finder = TelemetryFinder.getInstance();
+        // Install the tracking wrapper before the OpMode body runs, so
+        // everything it adds to telemetry is visible to the tuner.
+        // inject() is a no-op when there is no active OpMode or its
+        // telemetry is not a TelemetryImpl; the try/catch is belt and
+        // braces so a failure in the telemetry wrapper can never take
+        // down a tuning procedure -- tracking is best-effort.
+        try {
+            finder.inject();
+        } catch (RuntimeException ignored) {
+            // Run without telemetry tracking.
+        }
         try {
             result = runTuningOpMode();
         } catch (InterruptedException | RuntimeException | Error exception) {
             failure = exception;
             throw exception;
         } finally {
-            finished.countDown();
+            try {
+                finder.restore();
+            } catch (RuntimeException ignored) {
+                // Restore must never fail a completed tuning run; the
+                // wrapper is left on a finished OpMode, which is harmless.
+            } finally {
+                finished.countDown();
+            }
         }
     }
 
