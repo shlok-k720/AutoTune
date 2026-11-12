@@ -29,6 +29,8 @@ brief (what is being built, the repo map, and the hard constraints) and
 - **Camera display mode** — planned `Display` subtype for Limelight /
   standard webcam alongside `Display.image` and `fourWheelBot` (see
   AGENT_CONTEXT.md §6).
-- **JitPack publishing** — planned; the Dokka/deployer/Sonatype
-  publishing is still in `Tuning/build.gradle.kts` for now (see
-  AGENT_CONTEXT.md §10).
+- **JitPack publishing** — `maven-publish` with group
+  `com.github.shlok-k720.AutoTune`, artifact `tuning`, version 1.0.3;
+  `jitpack.yml` pins JDK 17. Coordinate:
+  `com.github.shlok-k720.AutoTune:tuning:1.0.3` (no JitPack build yet —
+  see AGENT_CONTEXT.md §10).

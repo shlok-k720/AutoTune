@@ -2,14 +2,17 @@ import io.clroot.gradle.bun.task.BunTask
 
 plugins {
     id("com.android.library") version "8.7.3"
-    id("org.jetbrains.dokka") version "2.2.0"
-    id("io.deepmedia.tools.deployer") version "0.18.0"
     id("io.clroot.gradle-bun") version "0.1.0"
     kotlin("android") version "2.3.21"
+    `maven-publish`
 }
 
-group = "com.pedropathing"
-version = property("version") as String
+// JitPack coordinates: the group is mechanically derived from the repo
+// (com.github.<user>.<repo>), the version from the tag. See the FTC library
+// publishing guide. The Java package / Android namespace
+// (com.pedropathing.tuning) is unchanged by this.
+group = property("GROUP") as String
+version = property("VERSION_NAME") as String
 
 repositories {
     mavenCentral()
@@ -41,7 +44,6 @@ dependencies {
     compileOnly("org.firstinspires.ftc:RobotCore:12.0.0")
     compileOnly("org.firstinspires.ftc:FtcCommon:12.0.0")
     compileOnly("org.firstinspires.ftc:RobotServer:12.0.0")
-    dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
     implementation("com.pedropathing:revhub:3.0.2")
     implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
     implementation("com.aventrix.jnanoid:jnanoid:2.0.0")
@@ -50,58 +52,21 @@ dependencies {
     }
 }
 
-val dokkaJar = tasks.register<Jar>("dokkaJar") {
-    description = "Generates a jar with the dokka documentation for the release"
-    dependsOn(tasks.named("dokkaGenerate"))
-    from(dokka.basePublicationsDirectory.dir("html"))
-    archiveClassifier = "html-docs"
-}
-
-deployer {
-    projectInfo {
-        name = "Pedro Pathing AutoTune"
-        description = "An automatic tuning system for Pedro Pathing"
-        url = "https://pedropathing.com"
-        scm {
-            fromGithub("Pedro-Pathing", "AutoTune")
-        }
-        license("BSD 3-Clause License", "https://opensource.org/licenses/BSD-3-Clause")
-
-        developer("Baron Henderson", "baron@pedropathing.com")
-        developer("Havish Sripada", "havish@pedropathing.com")
-        developer("Davis Luxenberg", "davis@pedropathing.com")
-    }
-
-    content {
-        androidComponents("release") {
-            docs(dokkaJar)
-        }
-    }
-
-    if (System.getenv("PUBLISH_PEDRO") == "yes please") {
-        signing {
-            key = secret("MVN_GPG_KEY")
-            password = secret("MVN_GPG_PASSWORD")
-        }
-
-        centralPortalSpec {
-            auth {
-                user = secret("SONATYPE_USERNAME")
-                password = secret("SONATYPE_PASSWORD")
-            }
-            allowMavenCentralSync = false
-        }
-
-        nexusSpec("snapshot") {
-            repositoryUrl = "https://central.sonatype.com/repository/maven-snapshots/"
-            auth {
-                user = secret("SONATYPE_USERNAME")
-                password = secret("SONATYPE_PASSWORD")
+// JitPack publishing (FTC library publishing guide pattern):
+// JitPack runs `publishToMavenLocal` on its machines and serves the result
+// itself, so there is deliberately no `publishing { repositories { ... } }`
+// block here. Coordinate: com.github.shlok-k720.AutoTune:tuning:1.0.3.
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = project.group.toString()
+            artifactId = "tuning"
+            version = project.version.toString()
+            afterEvaluate {
+                from(components["release"])
             }
         }
     }
-
-    localSpec()
 }
 
 val frontendDir = rootDir.parentFile.resolve("web-tuner")
