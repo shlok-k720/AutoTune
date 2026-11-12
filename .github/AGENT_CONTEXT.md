@@ -11,8 +11,10 @@ the survey-only brief. This version records what was actually built on
 but the first JitPack build FAILED ("No build file found" — JitPack did
 not find `build.gradle.kts` in `Tuning/`), so `jitpack.yml` now carries
 an `install` override starting with `chmod +x Tuning/gradlew`
-(`gradlew` is mode 100644 in git) and the version was bumped to 1.0.4
-for a fresh JitPack build with no cached failure (see "Status" §6).
+(`gradlew` is mode 100644 in git); the 1.0.4 build then failed on a
+Java/Kotlin JVM-target mismatch, fixed by pinning
+`kotlinOptions.jvmTarget = "1.8"`, and the version is now 1.0.5
+(see "Status" §6).
 
 ## Status — applied to main (2026-11-11)
 
@@ -120,10 +122,23 @@ notes) and the Mac Gradle build is still the real check.
    bumped to **1.0.4** (`VERSION_NAME=1.0.4`, coordinate
    `com.github.shlok-k720.AutoTune:tuning:1.0.4`) so JitPack builds a
    fresh version with no cached failure — the `v1.0.3` GitHub release
-   stays, it just never got a JitPack artifact. **Still
-   unverified:** no Gradle build on this VM; the 1.0.4 JitPack build is
-   the real check, and the user must run `./gradlew publishToMavenLocal`
-   on his Mac first.
+   stays, it just never got a JitPack artifact. **The 1.0.4 JitPack
+   build FAILED too** (exit 1, 46 s): the `chmod` fix worked — the
+   install ran inside `Tuning/`, Gradle 8.13, and the frontend built
+   fine — but `:compileDebugKotlin` failed with "Inconsistent JVM
+   Target Compatibility Between Java and Kotlin Tasks
+   (`compileDebugJavaWithJavac` 1.8 vs `compileDebugKotlin` 17)":
+   `Tuning/build.gradle.kts` pinned Java to 1.8 but set no Kotlin JVM
+   target, so Kotlin 2.3 defaulted to the build JDK (17). Fix:
+   `kotlinOptions { jvmTarget = "1.8" }` in the `android` block.
+   (Upstream Pedro's build file has no `kotlinOptions` either — the
+   same latent mismatch; how their Maven Central build avoids it is
+   unknown.) Version bumped to **1.0.5** (`VERSION_NAME=1.0.5`,
+   coordinate `com.github.shlok-k720.AutoTune:tuning:1.0.5`) since
+   1.0.4's failed build is cached on JitPack. **Still unverified:**
+   no Gradle build on this VM; the 1.0.5 JitPack build is the real
+   check, and the user must run `./gradlew publishToMavenLocal` on his
+   Mac first.
 7. **README — DONE.** Top of `README.md` now states this is a fork of
    Pedro-Pathing/AutoTune and lists the added features in short.
 
@@ -745,9 +760,12 @@ Out of scope for this brief. Do not design or build anything for it.
   build publishToMavenLocal`. `v1.0.3` was re-tagged at the fixed
   commit but JitPack never rebuilt it (cached failed build, moved tag
   not picked up), so the version was bumped to **1.0.4** for a fresh
-  build. Still unverified: no Gradle build on this VM; run
-  `./gradlew publishToMavenLocal` on a Mac first, then the 1.0.4
-  JitPack build is the real check.
+  build — which FAILED at `:compileDebugKotlin` with "Inconsistent JVM
+  Target Compatibility" (Java 1.8 vs Kotlin 17): fixed by adding
+  `kotlinOptions { jvmTarget = "1.8" }` to the `android` block, and
+  the version was bumped to **1.0.5**. Still unverified: no Gradle
+  build on this VM; run `./gradlew publishToMavenLocal` on a Mac
+  first, then the 1.0.5 JitPack build is the real check.
 
 ## 11. Open questions the agent must resolve before designing (do not guess)
 

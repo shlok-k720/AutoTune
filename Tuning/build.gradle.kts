@@ -33,6 +33,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
+    // Pin Kotlin's JVM target to 1.8 to match compileOptions above.
+    // Without this, Kotlin 2.3 defaults the JVM target to the JDK
+    // running Gradle (17 on JitPack), and AGP fails the build with
+    // "Inconsistent JVM Target Compatibility" (Java 1.8 vs Kotlin 17).
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     publishing {
         singleVariant("release") {
             withSourcesJar()
